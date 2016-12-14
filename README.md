@@ -6,14 +6,16 @@ Currently only the code for MNIST experiments is available. I am working hard to
 
 ## Usage
 
+run a simple experiment with independent training only:
 ```
 cd mnist
 THEANO_FLAGS=mode=FAST_RUN,device=gpu,floatX=float32 python train_independent.py
 ```
-or if you would like to run on cpu:
+
+or with joint training (from scratch):
 
 ```
-THEANO_FLAGS=mode=FAST_RUN,device=cpu,floatX=float32 python train_independent.py
+THEANO_FLAGS=mode=FAST_RUN,device=gpu,floatX=float32 python train_joint.py
 ```
 
 ## Citations
