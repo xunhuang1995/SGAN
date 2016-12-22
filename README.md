@@ -23,7 +23,7 @@ THEANO_FLAGS=mode=FAST_RUN,device=gpu,floatX=float32 python train_joint.py
 
 ## Citations
 
-If you use the code in this repository in your paper, please cite:
+If you use the code in this repository in your paper, please consider citing:
 
 ```
 @article{huang2016sgan,
