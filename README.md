@@ -12,9 +12,9 @@ Currently only the code for MNIST experiments is available. I am working hard to
 ## Samples
 
 <p align="center">
-<img src="http://www.cs.cornell.edu/~xhuang/img/mnist_samples.png"  width="200">
-<img src="http://www.cs.cornell.edu/~xhuang/img/svhn_samples.png"  width="200">
-<img src="http://www.cs.cornell.edu/~xhuang/img/cifar_samples.png"  width="200">
+<img src="http://www.cs.cornell.edu/~xhuang/img/mnist_samples.png"  width="250">
+<img src="http://www.cs.cornell.edu/~xhuang/img/svhn_samples.png"  width="250">
+<img src="http://www.cs.cornell.edu/~xhuang/img/cifar_samples.png"  width="250">
 </p>
 
 ## Usage
