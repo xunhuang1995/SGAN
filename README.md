@@ -9,6 +9,14 @@ Currently only the code for MNIST experiments is available. I am working hard to
 <img src="http://www.cs.cornell.edu/~xhuang/img/sgan.jpg" width="650">
 </p>
 
+## Samples
+
+<p align="center">
+<img src="http://www.cs.cornell.edu/~xhuang/img/mnist_samples.png"  width="200">
+<img src="http://www.cs.cornell.edu/~xhuang/img/svhn_samples.png"  width="200">
+<img src="http://www.cs.cornell.edu/~xhuang/img/cifar_samples.png"  width="200">
+</p>
+
 ## Usage
 
 run a simple experiment with independent training only:
