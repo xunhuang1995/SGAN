@@ -112,29 +112,29 @@ gen_x_joint = LL.get_output(gen0_layers[-1], {gen0_layer_fc3: gen_fc3}, determin
 
 ''' specify discriminator D1 '''
 disc1_layers = [LL.InputLayer(shape=(None, 256))]
-disc1_layers.append(LL.DenseLayer(disc1_layers[-1], num_units=256))
-disc1_layers.append(LL.DenseLayer(disc1_layers[-1], num_units=256))
+disc1_layers.append(LL.DenseLayer(disc1_layers[-1], num_units=256, W=Normal(0.02), nonlinearity=nn.lrelu))
+disc1_layers.append(LL.DenseLayer(disc1_layers[-1], num_units=256, W=Normal(0.02), nonlinearity=nn.lrelu))
 disc1_layer_shared = disc1_layers[-1]
 
-disc1_layer_z_recon = LL.DenseLayer(disc1_layer_shared, num_units=50, nonlinearity=T.nnet.sigmoid)
+disc1_layer_z_recon = LL.DenseLayer(disc1_layer_shared, num_units=50, W=Normal(0.02), nonlinearity=T.nnet.sigmoid)
 disc1_layers.append(disc1_layer_z_recon) 
 
-disc1_layer_adv = LL.DenseLayer(disc1_layer_shared, num_units=1, nonlinearity=T.nnet.sigmoid)
+disc1_layer_adv = LL.DenseLayer(disc1_layer_shared, num_units=1, W=Normal(0.02), nonlinearity=T.nnet.sigmoid)
 disc1_layers.append(disc1_layer_adv) 
 
 ''' specify discriminator D0 '''
 disc0_layers = [LL.InputLayer(shape=(args.batch_size, 28**2))]
 disc0_layers.append(LL.ReshapeLayer(disc0_layers[-1], (args.batch_size, 1, 28, 28)))
-disc0_layers.append(dnn.Conv2DDNNLayer(disc0_layers[-1], 32, (5,5), pad=2, stride=2, W=Normal(0.01), nonlinearity=nn.lrelu)) # conv
-disc0_layers.append(dnn.Conv2DDNNLayer(disc0_layers[-1], 64, (5,5), pad=2, stride=2, W=Normal(0.01), nonlinearity=nn.lrelu)) # conv
-disc0_layers.append(dnn.Conv2DDNNLayer(disc0_layers[-1], 128, (5,5), pad=2, stride=2, W=Normal(0.01), nonlinearity=nn.lrelu)) # conv
-disc0_layers.append(LL.DenseLayer(disc0_layers[-1], num_units=256, nonlinearity=T.nnet.relu)) # fc
+disc0_layers.append(dnn.Conv2DDNNLayer(disc0_layers[-1], 32, (5,5), pad=2, stride=2, W=Normal(0.02), nonlinearity=nn.lrelu)) # conv
+disc0_layers.append(dnn.Conv2DDNNLayer(disc0_layers[-1], 64, (5,5), pad=2, stride=2, W=Normal(0.02), nonlinearity=nn.lrelu)) # conv
+disc0_layers.append(dnn.Conv2DDNNLayer(disc0_layers[-1], 128, (5,5), pad=2, stride=2, W=Normal(0.02), nonlinearity=nn.lrelu)) # conv
+disc0_layers.append(LL.DenseLayer(disc0_layers[-1], num_units=256, W=Normal(0.02), nonlinearity=nn.lrelu)) # fc
 disc0_layer_shared = disc0_layers[-1]
 
-disc0_layer_z_recon = LL.DenseLayer(disc0_layer_shared, num_units=50, nonlinearity=T.nnet.sigmoid) # branch for Q0, trained to recover noise
+disc0_layer_z_recon = LL.DenseLayer(disc0_layer_shared, num_units=50, W=Normal(0.02), nonlinearity=T.nnet.sigmoid) # branch for Q0, trained to recover noise
 disc0_layers.append(disc0_layer_z_recon) 
 
-disc0_layer_adv = LL.DenseLayer(disc0_layer_shared, num_units=1, nonlinearity=T.nnet.sigmoid) # branch for D0, trained to classify fake v.s. real
+disc0_layer_adv = LL.DenseLayer(disc0_layer_shared, num_units=1, W=Normal(0.02), nonlinearity=T.nnet.sigmoid) # branch for D0, trained to classify fake v.s. real
 disc0_layers.append(disc0_layer_adv)
 
 ''' forward pass '''
