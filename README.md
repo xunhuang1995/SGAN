@@ -17,20 +17,6 @@ Currently only the code for MNIST experiments is available. I am working hard to
 <img src="http://www.cs.cornell.edu/~xhuang/img/cifar_samples.png"  width="250">
 </p>
 
-## Usage
-
-run a simple experiment with independent training only:
-```
-cd mnist
-THEANO_FLAGS=mode=FAST_RUN,device=gpu,floatX=float32 python train_independent.py
-```
-
-or with joint training (from scratch):
-
-```
-THEANO_FLAGS=mode=FAST_RUN,device=gpu,floatX=float32 python train_joint.py
-```
-
 ## Citations
 
 If you use the code in this repository in your paper, please consider citing:
