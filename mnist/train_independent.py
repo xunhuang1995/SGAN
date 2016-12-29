@@ -10,6 +10,7 @@ import lasagne.layers as LL
 from lasagne.layers import dnn
 from lasagne.init import Normal
 import time
+sys.path.insert(0, '../')
 import nn
 import scipy
 import scipy.misc
