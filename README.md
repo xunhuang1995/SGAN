@@ -3,8 +3,6 @@
 
 This repository contains code for the paper "[Stacked Generative Adversarial Networks](https://arxiv.org/abs/1612.04357)". Part of the code is modified from OpenAI's [implementation](https://github.com/openai/improved-gan) of Improved GAN.
 
-Currently only the code for MNIST experiments is available. I am working hard to polish the code for SVHN/CIFAR-10 experiments and will push them to this repository as soon as possible.
-
 <p align="center">
 <img src="http://www.cs.cornell.edu/~xhuang/img/sgan.jpg" width="650">
 </p>
