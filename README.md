@@ -28,7 +28,6 @@ This repository contains code for the paper "[Stacked Generative Adversarial Net
 | SteinGAN |  6.35 | 
 | Improved GAN（best variant)  |  8.09 ± 0.07 | 
 | AC-GAN |  8.25 ± 0.07 | 
-| AC-GAN |  8.25 ± 0.07 | 
 | **SGAN (ours)**   |  **8.59 ± 0.12** | 
 
 ## Citations
