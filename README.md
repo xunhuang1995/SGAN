@@ -19,11 +19,17 @@ This repository contains code for the paper "[Stacked Generative Adversarial Net
 ## Performance Comprison on CIFAR-10
 | Method       |  Inception Score | 
 | ------------- | ----------- |
-| Infusion training    |   4.62 +/- 0.06     | 
-| GMAN (best variant)  |  5.34 +/- 0.05  | 
-| LRGAN  |  6.11 +/- 0.06  | 
-
-
+| Infusion training    |  4.62 ± 0.06     | 
+| GMAN (best variant)  |  5.34 ± 0.05  | 
+| LR-GAN  |  6.11 ± 0.06  | 
+| EGAN-Ent-VI  |  7.07 ± 0.10  | 
+| Denoising feature matching  |  7.72 ± 0.13 | 
+| DCGAN  |  6.58 | 
+| SteinGAN |  6.35 | 
+| Improved GAN（best variant)  |  8.09 ± 0.07 | 
+| AC-GAN |  8.25 ± 0.07 | 
+| AC-GAN |  8.25 ± 0.07 | 
+| SGAN (ours)   |  8.59 ± 0.12 | 
 
 ## Citations
 
