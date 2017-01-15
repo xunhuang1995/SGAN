@@ -101,7 +101,7 @@ for i in range(args.batch_size):
     refy_1hot[np.arange(args.batch_size), refy] = 1
 
 
-''' sample images by stacking all generators'''
+''' sample images by stacking all generators '''
 imgs = samplefun(meanimg, refy_1hot)
 imgs = np.transpose(np.reshape(imgs[:100,], (100, 3, 32, 32)), (0, 2, 3, 1))
 imgs = [imgs[i] for i in range(100)]
