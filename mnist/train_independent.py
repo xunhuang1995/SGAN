@@ -268,7 +268,7 @@ for epoch in range(args.num_epoch):
         logs['var_gen0'].append(np.var(np.array(g0)))
         logs['var_real0'].append(np.var(np.array(r0)))
 
-    ''' sample images by stacking all generators'''
+    ''' sample images by stacking all generators '''
     imgs = samplefun(refy_1hot)
     imgs = np.reshape(imgs[:100,], (100, 28, 28))
     imgs = [imgs[i, :, :] for i in range(100)]
@@ -278,7 +278,7 @@ for epoch in range(args.num_epoch):
     imgs = np.concatenate(rows, 0)
     scipy.misc.imsave(args.out_dir + "/mnist_sample_epoch{}.png".format(epoch), imgs)
 
-    ''' original images in the training set'''
+    ''' original images in the training set '''
     orix = np.reshape(batchx[:100,], (100, 28, 28))
     orix = [orix[i, :, :] for i in range(100)]
     rows = []
