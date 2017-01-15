@@ -322,7 +322,7 @@ for epoch in range(args.num_epoch):
         print("loss_disc1_adv = %.4f, loss_gen1_adv = %.4f,  loss_gen1_cond = %.4f, loss_gen1_ent = %.4f, loss_disc1_class = %.4f" 
             % (l_disc1_adv, l_gen1_adv, l_gen1_cond, l_gen1_ent, l_disc1_class))
 
-    ''' sample images by stacking all generators'''
+    ''' sample images by stacking all generators '''
     imgs = samplefun(meanimg, refy_1hot)
     imgs = np.transpose(np.reshape(imgs[:100,], (100, 3, 32, 32)), (0, 2, 3, 1))
     imgs = [imgs[i] for i in range(100)]
