@@ -10,7 +10,7 @@ import lasagne.layers as LL
 from lasagne.layers import dnn
 from lasagne.init import Normal
 sys.path.insert(0, '../')
-from cifar10_data import unpickle, load_cifar_data
+from cifar10_data import load_cifar_data
 import time
 import nn
 import scipy
@@ -48,7 +48,7 @@ theano_rng = MRG_RandomStreams(rng.randint(2 ** 15))
 lasagne.random.set_rng(np.random.RandomState(rng.randint(2 ** 15)))
 data_rng = np.random.RandomState(args.seed_data)
 
-''' specify pre-trained generator E '''
+''' specify pre-trained encoder E '''
 enc_layers = [LL.InputLayer(shape=(None, 3, 32, 32), input_var=None)]
 enc_layer_conv1 = dnn.Conv2DDNNLayer(enc_layers[-1], 64, (5,5), pad=0, stride=1, W=Normal(0.01), nonlinearity=nn.relu)
 enc_layers.append(enc_layer_conv1)
@@ -75,13 +75,13 @@ y = T.ivector()
 meanx = T.tensor3()
 lr = T.scalar() # learning rate
 real_fc3 = LL.get_output(enc_layer_fc3, x, deterministic=True)
-                   
+
 ''' specify generator G0, gen_x = G0(z0, h1) '''
 z0 = theano_rng.uniform(size=(args.batch_size, 16)) # uniform noise
 gen0_layers = [LL.InputLayer(shape=(args.batch_size, 16), input_var=z0)] # Input layer for z0
 gen0_layers.append(nn.batch_norm(LL.DenseLayer(nn.batch_norm(LL.DenseLayer(gen0_layers[0], num_units=128, W=Normal(0.02), nonlinearity=nn.relu)),
                   num_units=128, W=Normal(0.02), nonlinearity=nn.relu))) # embedding, 50 -> 128
-gen0_layer_z_embed = gen0_layers[-1] 
+gen0_layer_z_embed = gen0_layers[-1]
 
 gen0_layers.append(LL.InputLayer(shape=(args.batch_size, 256), input_var=real_fc3)) # Input layer for real_fc3 in independent training, gen_fc3 in joint training
 gen0_layer_fc3 = gen0_layers[-1]
@@ -125,7 +125,7 @@ disc0_layers.append(disc0_layer_adv)
 
 ''' forward pass '''
 
-output_before_softmax_real0 = LL.get_output(disc0_layer_adv, x, deterministic=False) 
+output_before_softmax_real0 = LL.get_output(disc0_layer_adv, x, deterministic=False)
 output_before_softmax_gen0, recon_z0 = LL.get_output([disc0_layer_adv, disc0_layer_z_recon], gen_x, deterministic=False) # discriminator's predicted probability that gen_x is real
 
 ''' loss for discriminator and Q '''
@@ -150,7 +150,7 @@ loss_gen0 = args.advloss_weight * loss_gen0_adv + args.condloss_weight * loss_ge
 ''' collect parameter updates for discriminators '''
 
 disc0_params = LL.get_all_params(disc0_layers[-1], trainable=True)
-disc0_param_updates = nn.adam_updates(disc0_params, loss_disc0, lr=lr, mom1=0.5) 
+disc0_param_updates = nn.adam_updates(disc0_params, loss_disc0, lr=lr, mom1=0.5)
 disc0_bn_updates = [u for l in LL.get_all_layers(disc0_layers[-1]) for u in getattr(l,'bn_updates',[])]
 disc0_bn_params = []
 for l in LL.get_all_layers(disc0_layers[-1]):
@@ -170,12 +170,12 @@ for l in LL.get_all_layers(gen0_layers[-1]):
         gen0_bn_params.append(l.avg_batch_var)
 
 ''' define training and testing functions '''
-train_batch_disc = th.function(inputs=[x, meanx, y, lr], outputs=[loss_disc0_class, loss_disc0_adv, gen_x, x], 
-    updates=disc0_param_updates+disc0_bn_updates) 
-train_batch_gen = th.function(inputs=[x, meanx, lr], outputs=[loss_gen0_adv, loss_gen0_cond, loss_gen0_ent], 
+train_batch_disc = th.function(inputs=[x, meanx, y, lr], outputs=[loss_disc0_class, loss_disc0_adv, gen_x, x],
+    updates=disc0_param_updates+disc0_bn_updates)
+train_batch_gen = th.function(inputs=[x, meanx, lr], outputs=[loss_gen0_adv, loss_gen0_cond, loss_gen0_ent],
     updates=gen0_param_updates+gen0_bn_updates)
 # samplefun = th.function(inputs=[meanx, y_1hot], outputs=gen_x_joint)   # sample function: generating images by stacking all generators
-reconfun = th.function(inputs=[x, meanx], outputs=gen_x)       # reconstruction function: use the bottom generator 
+reconfun = th.function(inputs=[x, meanx], outputs=gen_x)       # reconstruction function: use the bottom generator
                                                         # to generate images conditioned on real fc3 features
 ''' load data '''
 print("Loading data...")
@@ -193,7 +193,7 @@ for i in range(args.batch_size):
     refy_1hot = np.zeros((args.batch_size, 10),dtype=np.float32)
     refy_1hot[np.arange(args.batch_size), refy] = 1
 
-''' perform training  ''' 
+''' perform training  '''
 logs = {'loss_gen0_adv': [], 'loss_gen0_cond': [], 'loss_gen0_ent': [], 'loss_disc0_class': [], 'var_gen0': [], 'var_real0': []} # training logs
 for epoch in range(args.num_epoch):
     begin = time.time()
@@ -243,12 +243,12 @@ for epoch in range(args.num_epoch):
         logs['loss_disc0_class'].append(l_disc0_class)
         logs['var_gen0'].append(np.var(np.array(g0)))
         logs['var_real0'].append(np.var(np.array(r0)))
-        
-        print("Epoch %d, time = %ds, var gen x = %.4f, var real x = %.4f" % 
+
+        print("Epoch %d, time = %ds, var gen x = %.4f, var real x = %.4f" %
              (epoch, time.time()-begin, np.var(np.array(g0)), np.var(np.array(r0))))
-        print("loss_disc0_adv = %.4f, loss_gen0_adv = %.4f,  loss_gen0_cond = %.4f, loss_gen0_ent = %.4f, loss_disc0_class = %.4f" 
+        print("loss_disc0_adv = %.4f, loss_gen0_adv = %.4f,  loss_gen0_cond = %.4f, loss_gen0_ent = %.4f, loss_disc0_class = %.4f"
             % (l_disc0_adv, l_gen0_adv, l_gen0_cond, l_gen0_ent, l_disc0_class))
-        # print("loss_gen1_adv = %.4f,  loss_gen1_cond = %.4f, loss_gen1_ent = %.4f, loss_disc1_class = %.4f" 
+        # print("loss_gen1_adv = %.4f,  loss_gen1_cond = %.4f, loss_gen1_ent = %.4f, loss_disc1_class = %.4f"
         #     % (l_gen1_adv, l_gen1_cond, l_gen1_ent, l_disc1_class))
 
     # ''' sample images by stacking all generators'''
@@ -269,7 +269,7 @@ for epoch in range(args.num_epoch):
         rows.append(np.concatenate(orix[i::10], 1))
     orix = np.concatenate(rows, 0)
     scipy.misc.imsave(args.out_dir + "/mnist_ori_epoch{}.png".format(epoch), orix)
-    
+
     ''' reconstruct images '''
     reconx = reconfun(batchx, meanimg)
     reconx = np.transpose(np.reshape(reconx[:100,], (100, 3, 32, 32)), (0, 2, 3, 1))
@@ -278,7 +278,7 @@ for epoch in range(args.num_epoch):
     for i in range(10):
         rows.append(np.concatenate(reconx[i::10], 1))
     reconx = np.concatenate(rows, 0)
-    scipy.misc.imsave(args.out_dir + "/cifar_recon_epoch{}.png".format(epoch), reconx) 
+    scipy.misc.imsave(args.out_dir + "/cifar_recon_epoch{}.png".format(epoch), reconx)
 
     ''' save params '''
     if epoch%args.save_interval==0:

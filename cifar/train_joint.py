@@ -10,7 +10,7 @@ import lasagne.layers as LL
 from lasagne.layers import dnn
 from lasagne.init import Normal
 sys.path.insert(0, '../')
-from cifar10_data import unpickle, load_cifar_data
+from cifar10_data import load_cifar_data
 import time
 import nn
 import scipy
@@ -48,7 +48,7 @@ theano_rng = MRG_RandomStreams(rng.randint(2 ** 15))
 lasagne.random.set_rng(np.random.RandomState(rng.randint(2 ** 15)))
 data_rng = np.random.RandomState(args.seed_data)
 
-''' specify pre-trained generator E '''
+''' specify pre-trained encoder E '''
 enc_layers = [LL.InputLayer(shape=(None, 3, 32, 32), input_var=None)]
 enc_layer_conv1 = dnn.Conv2DDNNLayer(enc_layers[-1], 64, (5,5), pad=0, stride=1, W=Normal(0.01), nonlinearity=nn.relu)
 enc_layers.append(enc_layer_conv1)
@@ -77,10 +77,10 @@ lr = T.scalar() # learning rate
 real_fc3 = LL.get_output(enc_layer_fc3, x, deterministic=True)
 
 ''' specify generator G1, gen_fc3 = G0(z1, y) '''
-z1 = theano_rng.uniform(size=(args.batch_size, 50)) 
+z1 = theano_rng.uniform(size=(args.batch_size, 50))
 gen1_layers = [nn.batch_norm(LL.DenseLayer(LL.InputLayer(shape=(args.batch_size, 50), input_var=z1),
                                            num_units=256, W=Normal(0.02), nonlinearity=T.nnet.relu))] # Input layer for z1
-gen1_layer_z = gen1_layers[-1] 
+gen1_layer_z = gen1_layers[-1]
 
 gen1_layers.append(nn.batch_norm(LL.DenseLayer(LL.InputLayer(shape=(args.batch_size, 10), input_var=y_1hot),
                                                num_units=512, W=Normal(0.02), nonlinearity=T.nnet.relu))) # Input layer for labels
@@ -88,19 +88,19 @@ gen1_layer_y = gen1_layers[-1]
 
 gen1_layers.append(LL.ConcatLayer([gen1_layer_z,gen1_layer_y],axis=1))
 gen1_layers.append(nn.batch_norm(LL.DenseLayer(gen1_layers[-1], num_units=512, W=Normal(0.02), nonlinearity=T.nnet.relu)))
-gen1_layers.append(nn.batch_norm(LL.DenseLayer(gen1_layers[-1], num_units=512, W=Normal(0.02), nonlinearity=T.nnet.relu))) 
-gen1_layers.append(LL.DenseLayer(gen1_layers[-1], num_units=256, W=Normal(0.02), nonlinearity=T.nnet.relu)) 
+gen1_layers.append(nn.batch_norm(LL.DenseLayer(gen1_layers[-1], num_units=512, W=Normal(0.02), nonlinearity=T.nnet.relu)))
+gen1_layers.append(LL.DenseLayer(gen1_layers[-1], num_units=256, W=Normal(0.02), nonlinearity=T.nnet.relu))
 
 weights_toload = np.load('logs/gan1/gen1_params_epoch190.npz')
 weights_list_toload = [weights_toload['arr_{}'.format(k)] for k in range(len(weights_toload.files))]
 LL.set_all_param_values(gen1_layers, weights_list_toload)
-                   
+
 ''' specify generator G0, gen_x = G0(z0, h1) '''
 z0 = theano_rng.uniform(size=(args.batch_size, 16)) # uniform noise
 gen0_layers = [LL.InputLayer(shape=(args.batch_size, 16), input_var=z0)] # Input layer for z0
 gen0_layers.append(nn.batch_norm(LL.DenseLayer(nn.batch_norm(LL.DenseLayer(gen0_layers[0], num_units=128, W=Normal(0.02), nonlinearity=nn.relu)),
                   num_units=128, W=Normal(0.02), nonlinearity=nn.relu))) # embedding, 50 -> 128
-gen0_layer_z_embed = gen0_layers[-1] 
+gen0_layer_z_embed = gen0_layers[-1]
 
 gen0_layers.append(LL.ConcatLayer([gen1_layers[-1],gen0_layer_z_embed], axis=1)) # concatenate noise and fc3 features
 gen0_layers.append(LL.ReshapeLayer(nn.batch_norm(LL.DenseLayer(gen0_layers[-1], num_units=256*5*5, W=Normal(0.02), nonlinearity=T.nnet.relu)),
@@ -133,10 +133,10 @@ disc1_layers.append(nn.GaussianNoiseLayer(nn.batch_norm(LL.DenseLayer(disc1_laye
 disc1_layer_shared = disc1_layers[-1]
 
 disc1_layer_z_recon = LL.DenseLayer(disc1_layer_shared, num_units=50, W=Normal(0.02), nonlinearity=None)
-disc1_layers.append(disc1_layer_z_recon) 
+disc1_layers.append(disc1_layer_z_recon)
 
 disc1_layer_adv = LL.DenseLayer(disc1_layer_shared, num_units=10, W=Normal(0.02), nonlinearity=None)
-disc1_layers.append(disc1_layer_adv) 
+disc1_layers.append(disc1_layer_adv)
 
 weights_toload = np.load('logs/gan1/disc1_params_epoch190.npz')
 weights_list_toload = [weights_toload['arr_{}'.format(k)] for k in range(len(weights_toload.files))]
@@ -168,9 +168,9 @@ LL.set_all_param_values(disc0_layers, weights_list_toload)
 
 ''' forward pass '''
 
-output_before_softmax_real1 = LL.get_output(disc1_layer_adv, real_fc3, deterministic=False) 
+output_before_softmax_real1 = LL.get_output(disc1_layer_adv, real_fc3, deterministic=False)
 output_before_softmax_gen1, recon_z1 = LL.get_output([disc1_layer_adv, disc1_layer_z_recon], gen_fc3, deterministic=False)
-output_before_softmax_real0 = LL.get_output(disc0_layer_adv, x, deterministic=False) 
+output_before_softmax_real0 = LL.get_output(disc0_layer_adv, x, deterministic=False)
 output_before_softmax_gen0, recon_z0 = LL.get_output([disc0_layer_adv, disc0_layer_z_recon], gen_x, deterministic=False) # discriminator's predicted probability that gen_x is real
 
 ''' loss for discriminator and Q '''
@@ -218,7 +218,7 @@ for l in LL.get_all_layers(disc1_layers[-1]):
         disc1_bn_params.append(l.avg_batch_var)
 
 disc0_params = LL.get_all_params(disc0_layers[-1], trainable=True)
-disc0_param_updates = nn.adam_updates(disc0_params, loss_disc0, lr=lr, mom1=0.5) 
+disc0_param_updates = nn.adam_updates(disc0_params, loss_disc0, lr=lr, mom1=0.5)
 disc0_bn_updates = [u for l in LL.get_all_layers(disc0_layers[-1]) for u in getattr(l,'bn_updates',[])]
 disc0_bn_params = []
 for l in LL.get_all_layers(disc0_layers[-1]):
@@ -244,11 +244,11 @@ for l in LL.get_all_layers(gen0_layers[-1]):
 print(len(gen_bn_params))
 
 ''' define training and testing functions '''
-train_batch_disc = th.function(inputs=[x, meanx, y, y_1hot, lr], 
-                               outputs=[loss_disc1_class, loss_disc0_class, loss_disc1_adv, loss_disc0_adv, gen_fc3, real_fc3, gen_x, x], 
-                               updates=disc1_param_updates+disc1_bn_updates+disc0_param_updates+disc0_bn_updates) 
-train_batch_gen = th.function(inputs=[meanx, y_1hot, lr], 
-                              outputs=[loss_gen1_adv, loss_gen1_cond, loss_gen1_ent, loss_gen0_adv, loss_gen0_cond, loss_gen0_ent], 
+train_batch_disc = th.function(inputs=[x, meanx, y, y_1hot, lr],
+                               outputs=[loss_disc1_class, loss_disc0_class, loss_disc1_adv, loss_disc0_adv, gen_fc3, real_fc3, gen_x, x],
+                               updates=disc1_param_updates+disc1_bn_updates+disc0_param_updates+disc0_bn_updates)
+train_batch_gen = th.function(inputs=[meanx, y_1hot, lr],
+                              outputs=[loss_gen1_adv, loss_gen1_cond, loss_gen1_ent, loss_gen0_adv, loss_gen0_cond, loss_gen0_ent],
                               updates=gen1_param_updates+gen0_param_updates+gen_bn_updates)
 samplefun = th.function(inputs=[meanx, y_1hot], outputs=gen_x)   # sample function: generating images by stacking all generators
 
@@ -265,7 +265,7 @@ for i in range(args.batch_size):
     refy_1hot = np.zeros((args.batch_size, 10),dtype=np.float32)
     refy_1hot[np.arange(args.batch_size), refy] = 1
 
-''' perform training  ''' 
+''' perform training  '''
 logs = {'loss_gen1_adv': [], 'loss_gen1_cond': [], 'loss_gen1_ent': [], 'loss_disc1_class': [], 'var_gen1': [], 'var_real1': [],
         'loss_gen0_adv': [], 'loss_gen0_cond': [], 'loss_gen0_ent': [], 'loss_disc0_class': [], 'var_gen0': [], 'var_real0': []} # training logs
 for epoch in range(args.num_epoch):
@@ -314,12 +314,12 @@ for epoch in range(args.num_epoch):
         logs['loss_disc0_class'].append(l_disc0_class)
         logs['var_gen0'].append(np.var(np.array(g0)))
         logs['var_real0'].append(np.var(np.array(r0)))
-        
-        print("Epoch %d, time = %ds, var gen fc3 = %.4f, var real fc3 = %.4f, var gen x = %.4f, var real x = %.4f" % 
+
+        print("Epoch %d, time = %ds, var gen fc3 = %.4f, var real fc3 = %.4f, var gen x = %.4f, var real x = %.4f" %
              (epoch, time.time()-begin, np.var(np.array(g1)), np.var(np.array(r1)), np.var(np.array(g0)), np.var(np.array(r0))))
-        print("loss_disc0_adv = %.4f, loss_gen0_adv = %.4f,  loss_gen0_cond = %.4f, loss_gen0_ent = %.4f, loss_disc0_class = %.4f" 
+        print("loss_disc0_adv = %.4f, loss_gen0_adv = %.4f,  loss_gen0_cond = %.4f, loss_gen0_ent = %.4f, loss_disc0_class = %.4f"
             % (l_disc0_adv, l_gen0_adv, l_gen0_cond, l_gen0_ent, l_disc0_class))
-        print("loss_disc1_adv = %.4f, loss_gen1_adv = %.4f,  loss_gen1_cond = %.4f, loss_gen1_ent = %.4f, loss_disc1_class = %.4f" 
+        print("loss_disc1_adv = %.4f, loss_gen1_adv = %.4f,  loss_gen1_cond = %.4f, loss_gen1_ent = %.4f, loss_disc1_class = %.4f"
             % (l_disc1_adv, l_gen1_adv, l_gen1_cond, l_gen1_ent, l_disc1_class))
 
     ''' sample images by stacking all generators '''

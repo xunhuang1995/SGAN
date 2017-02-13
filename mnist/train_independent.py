@@ -45,7 +45,7 @@ theano_rng = MRG_RandomStreams(rng.randint(2 ** 15))
 lasagne.random.set_rng(np.random.RandomState(rng.randint(2 ** 15)))
 data_rng = np.random.RandomState(args.seed_data)
 
-''' specify pre-trained generator E '''
+''' specify pre-trained encoder E '''
 enc_layers = [LL.InputLayer(shape=(None, 1, 28, 28), input_var=None)]
 enc_layer_conv1 = dnn.Conv2DDNNLayer(enc_layers[-1], 32, (5,5), pad=0, stride=1, W=Normal(0.01), nonlinearity=nn.relu)
 enc_layers.append(enc_layer_conv1)
@@ -72,25 +72,25 @@ lr = T.scalar() # learning rate
 real_fc3 = LL.get_output(enc_layer_fc3, x, deterministic=True)
 
 ''' specify generator G1, gen_fc3 = G0(z1, y) '''
-z1 = theano_rng.uniform(size=(args.batch_size, 50)) 
+z1 = theano_rng.uniform(size=(args.batch_size, 50))
 gen1_layers = [LL.InputLayer(shape=(args.batch_size, 50), input_var=z1)] # Input layer for z1
-gen1_layer_z = gen1_layers[-1] 
+gen1_layer_z = gen1_layers[-1]
 
 gen1_layers.append(LL.InputLayer(shape=(args.batch_size, 10), input_var=y_1hot)) # Input layer for labels
 gen1_layer_y = gen1_layers[-1]
 
 gen1_layers.append(LL.ConcatLayer([gen1_layer_z,gen1_layer_y],axis=1))
 gen1_layers.append(nn.batch_norm(LL.DenseLayer(gen1_layers[-1], num_units=512, W=Normal(0.02), nonlinearity=T.nnet.relu)))
-gen1_layers.append(nn.batch_norm(LL.DenseLayer(gen1_layers[-1], num_units=512, W=Normal(0.02), nonlinearity=T.nnet.relu))) 
-gen1_layers.append(LL.DenseLayer(gen1_layers[-1], num_units=256, W=Normal(0.02), nonlinearity=T.nnet.relu)) 
+gen1_layers.append(nn.batch_norm(LL.DenseLayer(gen1_layers[-1], num_units=512, W=Normal(0.02), nonlinearity=T.nnet.relu)))
+gen1_layers.append(LL.DenseLayer(gen1_layers[-1], num_units=256, W=Normal(0.02), nonlinearity=T.nnet.relu))
 
 gen_fc3 = LL.get_output(gen1_layers[-1], deterministic=False)
-                   
+
 ''' specify generator G0, gen_x = G0(z0, h1) '''
 z0 = theano_rng.uniform(size=(args.batch_size, 50)) # uniform noise
 gen0_layers = [LL.InputLayer(shape=(args.batch_size, 50), input_var=z0)] # Input layer for z0
 gen0_layers.append(nn.batch_norm(LL.DenseLayer(gen0_layers[-1], num_units=128, W=Normal(0.02)))) # embedding, 50 -> 128
-gen0_layer_z_embed = gen0_layers[-1] 
+gen0_layer_z_embed = gen0_layers[-1]
 
 gen0_layers.append(LL.InputLayer(shape=(args.batch_size, 256), input_var=real_fc3)) # Input layer for real_fc3 in independent training, gen_fc3 in joint training
 gen0_layer_fc3 = gen0_layers[-1]
@@ -118,10 +118,10 @@ disc1_layers.append(LL.DenseLayer(disc1_layers[-1], num_units=256, W=Normal(0.02
 disc1_layer_shared = disc1_layers[-1]
 
 disc1_layer_z_recon = LL.DenseLayer(disc1_layer_shared, num_units=50, W=Normal(0.02), nonlinearity=T.nnet.sigmoid)
-disc1_layers.append(disc1_layer_z_recon) 
+disc1_layers.append(disc1_layer_z_recon)
 
 disc1_layer_adv = LL.DenseLayer(disc1_layer_shared, num_units=1, W=Normal(0.02), nonlinearity=T.nnet.sigmoid)
-disc1_layers.append(disc1_layer_adv) 
+disc1_layers.append(disc1_layer_adv)
 
 ''' specify discriminator D0 '''
 disc0_layers = [LL.InputLayer(shape=(args.batch_size, 28**2))]
@@ -133,7 +133,7 @@ disc0_layers.append(LL.DenseLayer(disc0_layers[-1], num_units=256, W=Normal(0.02
 disc0_layer_shared = disc0_layers[-1]
 
 disc0_layer_z_recon = LL.DenseLayer(disc0_layer_shared, num_units=50, W=Normal(0.02), nonlinearity=T.nnet.sigmoid) # branch for Q0, trained to recover noise
-disc0_layers.append(disc0_layer_z_recon) 
+disc0_layers.append(disc0_layer_z_recon)
 
 disc0_layer_adv = LL.DenseLayer(disc0_layer_shared, num_units=1, W=Normal(0.02), nonlinearity=T.nnet.sigmoid) # branch for D0, trained to classify fake v.s. real
 disc0_layers.append(disc0_layer_adv)
@@ -177,7 +177,7 @@ for l in LL.get_all_layers(disc1_layers[-1]):
         disc1_bn_params.append(l.avg_batch_var)
 
 disc0_params = LL.get_all_params(disc0_layers[-1], trainable=True)
-disc0_param_updates = nn.adam_updates(disc0_params, loss_disc0, lr=lr, mom1=0.5) 
+disc0_param_updates = nn.adam_updates(disc0_params, loss_disc0, lr=lr, mom1=0.5)
 disc0_bn_updates = [u for l in LL.get_all_layers(disc0_layers[-1]) for u in getattr(l,'bn_updates',[])]
 disc0_bn_params = []
 for l in LL.get_all_layers(disc0_layers[-1]):
@@ -205,12 +205,12 @@ for l in LL.get_all_layers(gen0_layers[-1]):
         gen0_bn_params.append(l.avg_batch_var)
 
 ''' define training and testing functions '''
-train_batch_disc = th.function(inputs=[x, y_1hot, lr], outputs=[gen_fc3, real_fc3, gen_x, x], 
-    updates=disc1_param_updates+disc1_bn_updates+disc0_param_updates+disc0_bn_updates) 
-train_batch_gen = th.function(inputs=[x, y_1hot, lr], outputs=[loss_gen1_adv, loss_gen1_cond, loss_gen1_ent, loss_gen0_adv, loss_gen0_cond, loss_gen0_ent], 
+train_batch_disc = th.function(inputs=[x, y_1hot, lr], outputs=[gen_fc3, real_fc3, gen_x, x],
+    updates=disc1_param_updates+disc1_bn_updates+disc0_param_updates+disc0_bn_updates)
+train_batch_gen = th.function(inputs=[x, y_1hot, lr], outputs=[loss_gen1_adv, loss_gen1_cond, loss_gen1_ent, loss_gen0_adv, loss_gen0_cond, loss_gen0_ent],
     updates=gen1_param_updates+gen1_bn_updates+gen0_param_updates+gen0_bn_updates)
 samplefun = th.function(inputs=[y_1hot], outputs=gen_x_joint)   # sample function: generating images by stacking all generators
-reconfun = th.function(inputs=[x], outputs=gen_x)       # reconstruction function: use the bottom generator 
+reconfun = th.function(inputs=[x], outputs=gen_x)       # reconstruction function: use the bottom generator
                                                         # to generate images conditioned on real fc3 features
 ''' load data '''
 data = np.load('mnist.npz')
@@ -228,7 +228,7 @@ for i in range(args.batch_size):
     refy_1hot = np.zeros((args.batch_size, 10),dtype=np.float32)
     refy_1hot[np.arange(args.batch_size), refy] = 1
 
-''' perform training  ''' 
+''' perform training  '''
 logs = {'loss_gen1_adv': [], 'loss_gen1_cond': [], 'loss_gen1_ent': [], 'var_gen1': [], 'var_real1': [],
         'loss_gen0_adv': [], 'loss_gen0_cond': [], 'loss_gen0_ent': [], 'var_gen0': [], 'var_real0': []} # training logs
 for epoch in range(args.num_epoch):
@@ -286,7 +286,7 @@ for epoch in range(args.num_epoch):
         rows.append(np.concatenate(orix[i::10], 1))
     orix = np.concatenate(rows, 0)
     scipy.misc.imsave(args.out_dir + "/mnist_ori_epoch{}.png".format(epoch), orix)
-    
+
     ''' reconstruct images '''
     reconx = reconfun(batchx)
     reconx = np.reshape(reconx[:100,], (100, 28, 28))
@@ -295,7 +295,7 @@ for epoch in range(args.num_epoch):
     for i in range(10):
         rows.append(np.concatenate(reconx[i::10], 1))
     reconx = np.concatenate(rows, 0)
-    scipy.misc.imsave(args.out_dir + "/mnist_recon_epoch{}.png".format(epoch), reconx) 
+    scipy.misc.imsave(args.out_dir + "/mnist_recon_epoch{}.png".format(epoch), reconx)
 
     ''' save params '''
     if epoch%args.save_interval==0:
@@ -306,9 +306,9 @@ for epoch in range(args.num_epoch):
         np.save(args.out_dir + '/logs.npy',logs)
 
 
-    print("Epoch %d, time = %ds, var gen fc3 = %.4f, var real fc3 = %.4f, var gen x = %.4f, var real x = %.4f" % 
+    print("Epoch %d, time = %ds, var gen fc3 = %.4f, var real fc3 = %.4f, var gen x = %.4f, var real x = %.4f" %
          (epoch, time.time()-begin, np.var(np.array(g1)), np.var(np.array(r1)), np.var(np.array(g0)), np.var(np.array(r0))))
-    print("loss_gen0_adv = %.4f,  loss_gen0_cond = %.4f, loss_gen0_ent = %.4f" 
+    print("loss_gen0_adv = %.4f,  loss_gen0_cond = %.4f, loss_gen0_ent = %.4f"
         % (l_gen0_adv, l_gen0_cond, l_gen0_ent))
-    print("loss_gen1_adv = %.4f,  loss_gen1_cond = %.4f, loss_gen1_ent = %.4f" 
+    print("loss_gen1_adv = %.4f,  loss_gen1_cond = %.4f, loss_gen1_ent = %.4f"
         % (l_gen1_adv, l_gen1_cond, l_gen1_ent))
