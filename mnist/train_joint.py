@@ -167,7 +167,7 @@ loss_gen0_cond = T.mean((recon_fc3 - gen_fc3)**2) # conditional loss, euclidean 
 loss_gen0 = args.advloss_weight * loss_gen0_adv + args.condloss_weight * loss_gen0_cond + args.entloss_weight * loss_gen0_ent
 
 ''' collect parameter updates for discriminators '''
-disc1_params = LL.get_all_params(disc1_layers[-1], trainable=True)
+disc1_params = LL.get_all_params(disc1_layers, trainable=True)
 disc1_param_updates = nn.adam_updates(disc1_params, loss_disc1, lr=lr, mom1=0.5)
 disc1_bn_updates = [u for l in LL.get_all_layers(disc1_layers[-1]) for u in getattr(l,'bn_updates',[])]
 disc1_bn_params = []
@@ -176,7 +176,7 @@ for l in LL.get_all_layers(disc1_layers[-1]):
         disc1_bn_params.append(l.avg_batch_mean)
         disc1_bn_params.append(l.avg_batch_var)
 
-disc0_params = LL.get_all_params(disc0_layers[-1], trainable=True)
+disc0_params = LL.get_all_params(disc0_layers, trainable=True)
 disc0_param_updates = nn.adam_updates(disc0_params, loss_disc0, lr=lr, mom1=0.5)
 disc0_bn_updates = [u for l in LL.get_all_layers(disc0_layers[-1]) for u in getattr(l,'bn_updates',[])]
 disc0_bn_params = []

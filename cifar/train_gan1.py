@@ -221,7 +221,7 @@ loss_gen1 = args.advloss_weight * loss_gen1_adv + args.condloss_weight * loss_ge
 # loss_gen0 = args.advloss_weight * loss_gen0_adv + args.condloss_weight * loss_gen0_cond + args.entloss_weight * loss_gen0_ent
 
 ''' collect parameter updates for discriminators '''
-disc1_params = LL.get_all_params(disc1_layers[-1], trainable=True)
+disc1_params = LL.get_all_params(disc1_layers, trainable=True)
 disc1_param_updates = nn.adam_updates(disc1_params, loss_disc1, lr=lr, mom1=0.5)
 disc1_bn_updates = [u for l in LL.get_all_layers(disc1_layers[-1]) for u in getattr(l,'bn_updates',[])]
 disc1_bn_params = []
