@@ -1,7 +1,7 @@
 # Stacked Generative Adversarial Networks
 
 
-This repository contains code for the paper "[Stacked Generative Adversarial Networks](https://arxiv.org/abs/1612.04357)". Part of the code is modified from OpenAI's [implementation](https://github.com/openai/improved-gan) of Improved GAN.
+This repository contains code for the paper "[Stacked Generative Adversarial Networks](https://arxiv.org/abs/1612.04357)", CVPR 2017. Part of the code is modified from OpenAI's [implementation](https://github.com/openai/improved-gan) of Improved GAN.
 
 ## Architecture
 <p align="center">
@@ -35,10 +35,15 @@ This repository contains code for the paper "[Stacked Generative Adversarial Net
 If you use the code in this repository in your paper, please consider citing:
 
 ```
-@article{huang2016sgan,
+@inproceedings{huang2017sgan,
   title={Stacked Generative Adversarial Networks},
   author={Huang, Xun and Li, Yixuan and Poursaeed, Omid and Hopcroft, John and Belongie, Serge},
-  journal={arXiv},
-  year={2016}
+  booktitle={CVPR},
+  year={2017}
 }
 ```
+
+## Contact
+
+If you have any questions about the code, feel free to email me (xh258@cornell.edu).
+
