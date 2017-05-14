@@ -268,7 +268,7 @@ for epoch in range(args.num_epoch):
     for i in range(10):
         rows.append(np.concatenate(orix[i::10], 1))
     orix = np.concatenate(rows, 0)
-    scipy.misc.imsave(args.out_dir + "/mnist_ori_epoch{}.png".format(epoch), orix)
+    scipy.misc.imsave(args.out_dir + "/cifar_ori_epoch{}.png".format(epoch), orix)
 
     ''' reconstruct images '''
     reconx = reconfun(batchx, meanimg)
